@@ -2,46 +2,66 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class GameOfLifeNoClickGUI extends JFrame {
-    private static final int GRID_SIZE = 5;
+    private static final int GRID_SIZE = 10;
     private boolean[][] grid;
-    private JButton[][] cells;
+    private JButton startButton;
+    private JButton stopButton;
+    private JSlider speedSlider;
     private Timer timer;
 
     public GameOfLifeNoClickGUI() {
         grid = new boolean[GRID_SIZE][GRID_SIZE];
-        cells = new JButton[GRID_SIZE][GRID_SIZE];
 
         initializeGrid();
 
         JPanel gridPanel = new JPanel(new GridLayout(GRID_SIZE, GRID_SIZE));
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                JButton cell = new JButton();
+                JPanel cell = new JPanel();
                 cell.setBackground(Color.WHITE);
                 cell.setOpaque(true);
-                cell.setBorderPainted(false);
+
                 gridPanel.add(cell);
-                cells[i][j] = cell;
             }
         }
 
+        JPanel controlPanel = new JPanel(new FlowLayout());
+        startButton = new JButton("Start");
+        stopButton = new JButton("Stop");
+        speedSlider = new JSlider(0, 1000, 500);
+
+        startButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                startSimulation();
+            }
+        });
+
+        stopButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                stopSimulation();
+            }
+        });
+
+        speedSlider.addChangeListener(e -> {
+            if (timer != null) {
+                timer.setDelay(speedSlider.getValue());
+            }
+        });
+
+        controlPanel.add(startButton);
+        controlPanel.add(stopButton);
+        controlPanel.add(speedSlider);
+
         add(gridPanel, BorderLayout.CENTER);
+        add(controlPanel, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Game of Life");
         pack();
         setVisible(true);
-
-        nextGeneration();
-
-        timer = new Timer(1000, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                nextGeneration();
-            }
-        });
-        timer.start();
     }
 
     private void initializeGrid() {
@@ -50,17 +70,31 @@ public class GameOfLifeNoClickGUI extends JFrame {
                 grid[i][j] = false;
             }
         }
-        grid[GRID_SIZE / 2][GRID_SIZE / 2] = true; // Set middle cell active
+
+        Random random = new Random();
+        int count = 0;
+        while (count < 5) {
+            int row = random.nextInt(GRID_SIZE);
+            int col = random.nextInt(GRID_SIZE);
+            if (!grid[row][col]) {
+                grid[row][col] = true;
+                count++;
+            }
+        }
     }
 
+
+
+
     private void updateCellState(int row, int col) {
-        JButton cell = cells[row][col];
+        JPanel cell = (JPanel) getContentPane().getComponent(row * GRID_SIZE + col + 1);
         if (grid[row][col]) {
             cell.setBackground(Color.BLACK);
         } else {
             cell.setBackground(Color.WHITE);
         }
     }
+
 
     private void nextGeneration() {
         boolean[][] updatedGrid = new boolean[GRID_SIZE][GRID_SIZE];
@@ -120,10 +154,28 @@ public class GameOfLifeNoClickGUI extends JFrame {
         return row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE;
     }
 
+    private void startSimulation() {
+        if (timer != null) {
+            timer.stop();
+        }
+        timer = new Timer(speedSlider.getValue(), new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                nextGeneration();
+            }
+        });
+        timer.start();
+    }
+
+    private void stopSimulation() {
+        if (timer != null) {
+            timer.stop();
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new GameOfLifeNoClickGUI();
+                new GameOfLifeGUI();
             }
         });
     }
