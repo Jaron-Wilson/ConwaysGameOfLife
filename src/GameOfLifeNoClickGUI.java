@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.Random;
 
 public class GameOfLifeNoClickGUI extends JFrame {
-    private static final int GRID_SIZE = 10;
+    private static final int GRID_SIZE = 20;
     private boolean[][] grid;
     private JButton startButton;
     private JButton stopButton;
@@ -81,17 +81,51 @@ public class GameOfLifeNoClickGUI extends JFrame {
                 count++;
             }
         }
+
+        updateCellStates();
     }
 
 
+    private void updateCellStates() {
+        Container contentPane = getContentPane();
+        if (contentPane.getComponentCount() > 0) {
+            JPanel gridPanel = (JPanel) contentPane.getComponent(0);
+            gridPanel.setLayout(new GridLayout(GRID_SIZE, GRID_SIZE, 1, 1)); // Add grid gaps
 
+            gridPanel.removeAll(); // Clear existing cells and grid lines
 
-    private void updateCellState(int row, int col) {
-        JPanel cell = (JPanel) getContentPane().getComponent(row * GRID_SIZE + col + 1);
-        if (grid[row][col]) {
-            cell.setBackground(Color.BLACK);
-        } else {
-            cell.setBackground(Color.WHITE);
+            for (int i = 0; i < GRID_SIZE; i++) {
+                for (int j = 0; j < GRID_SIZE; j++) {
+                    JPanel cell = new JPanel();
+                    cell.setBackground(grid[i][j] ? Color.BLACK : Color.WHITE);
+                    cell.setOpaque(true);
+
+                    gridPanel.add(cell);
+
+                    if (i != GRID_SIZE - 1) {
+                        JPanel horizontalLine = new JPanel();
+                        horizontalLine.setBackground(Color.BLACK);
+                        gridPanel.add(horizontalLine);
+                    }
+                }
+
+                if (i != GRID_SIZE - 1) {
+                    for (int j = 0; j < GRID_SIZE; j++) {
+                        JPanel verticalLine = new JPanel();
+                        verticalLine.setBackground(Color.BLACK);
+                        gridPanel.add(verticalLine);
+
+                        if (j != GRID_SIZE - 1) {
+                            JPanel emptyPanel = new JPanel();
+                            emptyPanel.setBackground(Color.BLACK);
+                            gridPanel.add(emptyPanel);
+                        }
+                    }
+                }
+            }
+
+            gridPanel.revalidate();
+            gridPanel.repaint();
         }
     }
 
@@ -108,11 +142,7 @@ public class GameOfLifeNoClickGUI extends JFrame {
 
         grid = updatedGrid;
 
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
-                updateCellState(i, j);
-            }
-        }
+        updateCellStates();
     }
 
     private boolean applyRules(int row, int col) {
@@ -173,10 +203,6 @@ public class GameOfLifeNoClickGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new GameOfLifeGUI();
-            }
-        });
+        SwingUtilities.invokeLater(GameOfLifeNoClickGUI::new);
     }
 }
