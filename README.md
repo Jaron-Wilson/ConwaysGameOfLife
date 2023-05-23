@@ -10,3 +10,6 @@ Any dead cell with exactly three live neighbors becomes a live cell, as if by re
 want to have the squares like:
 ![image](https://github.com/Jaron-Wilson/ConwaysGameOfLife/assets/78304954/2cab7a1e-3a1e-496e-8fcb-317386411016)
 
+how conways works:
+https://www.geeksforgeeks.org/program-for-conways-game-of-life/#
+
